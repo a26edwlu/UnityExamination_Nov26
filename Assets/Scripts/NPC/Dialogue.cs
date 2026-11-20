@@ -7,12 +7,15 @@ public class Dialogue : MonoBehaviour
 {
     [SerializeField] private TMPro.TextMeshProUGUI textBox;
     [SerializeField] private Button nextButton;
-    [SerializeField] List<string> dialogue;
+    [SerializeField] List<string> dialogue; 
+    [SerializeField] List<string> altDialogueText;
 
     [SerializeField] private UnityEvent onStartDialogue;
     [SerializeField] private UnityEvent onEndDialogue;
 
-    private int currentIndex = -1;
+    private int currentIndex = -1; 
+    
+    private bool altDialogue = false;
 
 
     public void NextDialogue()
@@ -26,18 +29,44 @@ public class Dialogue : MonoBehaviour
         
         // Move to the next item in the list of dialogue-lines
         currentIndex++;
-        // If we're not at the end of the list yet: update text in text-box
-        if (currentIndex < dialogue.Count)
+        // If we're not at the end of the list yet: update text in text-box 
+        if (!altDialogue)
         {
-            textBox.text = dialogue[currentIndex];
-        }
-        // If we are at the end of the list: run the onEndDialogue-event, reset the index (so that the dialogue can be restarted) and remove this dialog from the next-button
-        else
+            if (currentIndex < dialogue.Count)
+            {
+                textBox.text = dialogue[currentIndex];
+            }
+            else
+            {
+                EndDialogue();
+            }
+            
+        } 
+        else if (altDialogue)
         {
-            textBox.text = "";
-            onEndDialogue?.Invoke();
-            currentIndex = -1;
-            nextButton?.onClick.RemoveListener(NextDialogue);
+            if (currentIndex < altDialogueText.Count)
+            {
+                textBox.text = altDialogueText[currentIndex];
+            }
+            else
+            {
+                EndDialogue();
+            }
         }
+       
+      
+    }
+
+    public void AlternativeDialogueSwitch()
+    {
+        altDialogue = true;
+    }
+
+    private void EndDialogue()
+    {
+        textBox.text = "";
+        onEndDialogue?.Invoke();
+        currentIndex = -1;
+        nextButton?.onClick.RemoveListener(NextDialogue);
     }
 }
